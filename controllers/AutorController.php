@@ -11,21 +11,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Redireciona para a página anterior após o cadastro
         $redirectUrl = $_SERVER['HTTP_REFERER'] ?? '../views/autores.php'; // Caso não tenha referência, redireciona para a página de lista
 
-        // Verifica se o parâmetro 'status' já está na URL
-        if (strpos($redirectUrl, 'status=') === false) {
-            $redirectUrl .= '?status=success';
-        } else {
-            $redirectUrl .= '&status=success';
-        }
+        // Remove qualquer parâmetro 'status' existente na URL
+        $parsedUrl = parse_url($redirectUrl);
+        parse_str($parsedUrl['query'] ?? '', $queryParams);
+        unset($queryParams['status']); // Remove 'status' da URL, se existir
+
+        // Adciona o parâmetro 'status=success' na URL
+        $queryParams['status'] = 'success';
+
+        // Faz a URL com o novo parâmetro
+        $redirectUrl = $parsedUrl['path'] . '?' . http_build_query($queryParams);
+
         // Faz o redirecionamento
         header("Location: $redirectUrl");
         exit;
     } else {
         echo "Nome do autor não informado!";
     }
-
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    echo json_encode($autorDAO->listar()); //Testando json_enconde, transforma o resultado em json para ajudar no front.F
+    echo json_encode($autorDAO->listar()); //Testando json_enconde, transforma o resultado em json 
 }
 
 

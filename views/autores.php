@@ -15,10 +15,15 @@ $autores = $autorDAO->listar();
     <!-- Importando fonte moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../public\css\style.css">
+    <link rel="stylesheet" href="../public/css/style.css">
 </head>
 
 <body class="container mt-4">
+
+    <!-- Botão para voltar para a Home -->
+    <div class="position-absolute" style="top: 10px; left: 10px;">
+        <a href="../index.php" class="btn btn-secondary">Voltar para a Home</a>
+    </div>
 
     <h2>Cadastro de Autor</h2>
     <form action="../controllers/AutorController.php" method="POST" class="mb-4">

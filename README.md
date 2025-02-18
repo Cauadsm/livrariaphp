@@ -9,3 +9,6 @@ models/ → Representa as entidades (Autor, Livro, Edição Especial).
 views/ → Arquivos de interface HTML com formulários.
 controllers/ → Regras de negócio (controlam os dados e chamam o DAO).
 public/ → Arquivos estáticos (CSS, JS).
+
+
+Nesse projeto foi utilizado os slides das aulas de tec web, somado com pesquisas na web.

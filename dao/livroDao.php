@@ -66,5 +66,16 @@ class LivroDAO
             return false; // Retorna false em caso de erro
         }
     }
+
+    public function editar(Livros $livro)
+    {
+        $query = "UPDATE livro SET titulo = :titulo, autor_id = :autor_id WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $livro->id, PDO::PARAM_INT);
+        $stmt->bindParam(":titulo", $livro->titulo);
+        $stmt->bindParam(":autor_id", $livro->autor_id, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
 }
 ?>

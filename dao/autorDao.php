@@ -49,5 +49,13 @@ class AutorDAO
         }
     }
 
+    public function editar($id, $nome) {
+        $query = "UPDATE autor SET nome = :nome WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':nome', $nome);
+        return $stmt->execute();
+    }
+
 }
 ?>

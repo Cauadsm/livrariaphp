@@ -5,64 +5,52 @@ $autorDAO = new AutorDAO();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['nome'])) {
-        // Chama o método de cadastro no DAO
-        $autorDAO->cadastrar($_POST['nome']);
+        $nome = $_POST['nome'];
 
-        // Redireciona para a página anterior após o cadastro
-        $redirectUrl = $_SERVER['HTTP_REFERER'] ?? '../views/autores.php'; // Caso não tenha referência, redireciona para a página de lista
+        // Verifica se está editando ou cadastrando
+        if (!empty($_POST['id'])) {
+            $id = $_POST['id'];
+            $autorDAO->editar($id, $nome);
+        } else {
+            $autorDAO->cadastrar($nome);
+        }
 
-        // Remove qualquer parâmetro 'status' existente na URL
+        // Garante que, após editar, não fique travado no modo edição
+        header("Location: ../views/autores.php?status=success");
+        exit;
+
+        // Redirecionamento após a ação
+        $redirectUrl = $_SERVER['HTTP_REFERER'] ?? '../views/autores.php';
         $parsedUrl = parse_url($redirectUrl);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
-        unset($queryParams['status']); // Remove 'status' da URL, se existir
-
-        // Adciona o parâmetro 'status=success' na URL
+        unset($queryParams['status']);
         $queryParams['status'] = 'success';
-
-        // Faz a URL com o novo parâmetro
         $redirectUrl = $parsedUrl['path'] . '?' . http_build_query($queryParams);
 
-        // Faz o redirecionamento
         header("Location: $redirectUrl");
         exit;
     } else {
         echo "Nome do autor não informado!";
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    echo json_encode($autorDAO->listar()); //Testando json_enconde, transforma o resultado em json 
+    echo json_encode($autorDAO->listar());
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'DELETE') {
-    // Verifica se o ID do autor foi enviado
     if (isset($_POST['id'])) {
         $id = $_POST['id'];
-        // Chama o método de exclusão no DAO
         $autorDAO->excluir($id);
 
-        // Redireciona para a página anterior sem repetir o parâmetro 'status'
-        $redirectUrl = $_SERVER['HTTP_REFERER'] ?? '../views/autores.php'; // Caso não tenha referência, redireciona para a página de lista
-        // Remove o parâmetro 'status' da URL caso já exista
+        $redirectUrl = $_SERVER['HTTP_REFERER'] ?? '../views/autores.php';
         $parsedUrl = parse_url($redirectUrl);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
         unset($queryParams['status']);
-        // Reconstrua a URL sem o parâmetro 'status' repetido
         $newUrl = $parsedUrl['path'] . '?' . http_build_query($queryParams);
 
-        // Adiciona o status na URL de redirecionamento
         header("Location: $newUrl&status=success");
         exit;
     } else {
         echo "ID do autor não encontrado!";
     }
 }
-
-
-
-
-//Utilizando controller não podemos utilizar pq method delete é diferente de method 
-
-//POr isso temos que ler manualmente direto do corpo do site usando php://input 
-
-
 ?>

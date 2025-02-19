@@ -54,5 +54,15 @@ class EdicaoDao
             return false; // Retorna false em caso de erro
         }
     }
+
+    public function editar(Edicao $edicao) {
+        $query = "UPDATE edicao_especial SET descricao = :descricao, livro_id = :livro_id WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $edicao->id);
+        $stmt->bindParam(':descricao', $edicao->descricao);
+        $stmt->bindParam(':livro_id', $edicao->livro_id);
+        return $stmt->execute();
+    }
+    
 }
 ?>

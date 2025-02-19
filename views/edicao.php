@@ -1,7 +1,22 @@
 <?php
 include_once '../dao/EdicaoDao.php';
+include_once '../dao/LivroDAO.php';
 
 $edicaoDAO = new EdicaoDao();
+$livroDAO = new LivroDAO();
+
+// Verifica se existe um ID de edição para edição
+$edicaoEdit = null;
+if (isset($_GET['edit_id'])) {
+    $edicoes = $edicaoDAO->listar();
+    foreach ($edicoes as $edicao) {
+        if ($edicao['id'] == $_GET['edit_id']) {
+            $edicaoEdit = $edicao;
+            break;
+        }
+    }
+}
+
 $edicoes = $edicaoDAO->listar();
 ?>
 
@@ -34,35 +49,46 @@ $edicoes = $edicaoDAO->listar();
         <a href="../index.php" class="btn btn-secondary">Voltar para a Home</a>
     </div>
 
-    <h2>Cadastro de Edição Especial</h2>
+    <h2><?= isset($edicaoEdit) ? 'Editar Edição Especial' : 'Cadastro de Edição Especial' ?></h2>
+
+    <!-- Formulário de Cadastro / Edição -->
     <form action="../controllers/EdicaoController.php" method="POST" class="mb-4">
+        <input type="hidden" name="id" value="<?= isset($edicaoEdit) ? $edicaoEdit['id'] : '' ?>">
+
         <div class="mb-3">
             <label for="descricao" class="form-label">Descrição:</label>
-            <textarea name="descricao" id="descricao" class="form-control" rows="3" maxlength="255" required></textarea>
+            <textarea name="descricao" id="descricao" class="form-control" rows="3" maxlength="255"
+                required><?= isset($edicaoEdit) ? htmlspecialchars($edicaoEdit['descricao']) : '' ?></textarea>
         </div>
+
 
         <div class="mb-3">
             <label for="livro_id" class="form-label">Livro:</label>
             <select name="livro_id" id="livro_id" class="form-control" required>
                 <option value="">Selecione um livro</option>
                 <?php
-                include_once '../dao/LivroDAO.php';
-                $livroDAO = new LivroDAO();
                 $livros = $livroDAO->listar();
-
-                if (!empty($livros)) { // Verifica se há livros cadastrados
-                    foreach ($livros as $livro) {
-                        echo "<option value='{$livro->id}'>{$livro->titulo} - {$livro->autor_nome}</option>";
-                    }
-                } else {
-                    echo "<option value='' disabled>Nenhum livro encontrado</option>";
+                foreach ($livros as $livro) {
+                    // Verificar se o livro está selecionado
+                    $selected = isset($edicaoEdit) && $edicaoEdit['livro_id'] == $livro->id ? 'selected' : '';
+                    echo "<option value='{$livro->id}' {$selected}>{$livro->titulo} - {$livro->autor_nome}</option>";
                 }
                 ?>
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">Cadastrar</button>
+        <button type="submit" name="action" value="<?= isset($edicaoEdit) ? 'editar' : 'cadastrar' ?>"
+            class="btn btn-primary">
+            <?= isset($edicaoEdit) ? 'Salvar Alterações' : 'Cadastrar' ?>
+        </button>
     </form>
+
+    <!-- Mensagens de status (sucesso/erro) -->
+    <?php if (isset($_GET['status'])): ?>
+        <div class="alert alert-<?= $_GET['status'] ?>" role="alert">
+            <?= isset($_GET['message']) ? $_GET['message'] : 'Operação realizada com sucesso!' ?>
+        </div>
+    <?php endif; ?>
 
     <h2>Lista de Edições Especiais</h2>
     <table class="table table-striped">
@@ -78,11 +104,11 @@ $edicoes = $edicaoDAO->listar();
             <?php foreach ($edicoes as $edicao): ?>
                 <tr>
                     <td><?= $edicao['id'] ?></td>
-                    <!-- Aplicando a classe 'descricao' para controlar a largura e o overflow -->
                     <td class="descricao"><?= $edicao['descricao'] ?></td>
                     <td><?= $edicao['livro_nome'] ?></td>
                     <td>
-                        <form action="../controllers/EdicaoController.php" method="POST">
+                        <a href="?edit_id=<?= $edicao['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="../controllers/EdicaoController.php" method="POST" style="display:inline-block;">
                             <input type="hidden" name="_method" value="DELETE">
                             <input type="hidden" name="id" value="<?= $edicao['id'] ?>">
                             <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
